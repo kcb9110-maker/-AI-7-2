@@ -1,0 +1,3006 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>현장 맞춤형 통합 안전관리 시스템</title>
+
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#f2f4f6">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1161/1161388.png">
+    
+
+    <style>
+        :root {
+            --bg-color: #f2f4f6;
+            --card-bg: #ffffff;
+            --accent-blue: #3182f6;
+            --accent-blue-light: #e8f3ff;
+            --accent-yellow: #ff9500;
+            --accent-red: #ff3b30;
+            --accent-green: #34c759;
+            --text-main: #191f28;
+            --text-sub: #8b95a1;
+            --border-color: #e5e8eb;
+            --input-bg: #f9fafb;
+        }
+
+   * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 🟢 모든 클릭 가능 요소의 모바일 터치 지연(300ms 딜레이) 제거 */
+button, .auth-btn, .btn-gear, .btn-emergency, .admin-accordion-btn, .status-card, .ppe-compact-card, .tab-btn {
+    touch-action: manipulation;
+    user-select: none;
+}
+
+/* 🟢 버튼 누름(Click/Touch) 시 즉각적인 시각 피드백 추가 */
+button:active, .auth-btn:active, .btn-gear:active, .admin-accordion-btn:active, .status-card:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+        body {
+            background-color: #e5e8eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            max-height: 869px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .auth-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .auth-card {
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .auth-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-align: center;
+            margin-bottom: 2px;
+            word-break: keep-all;
+        }
+
+        .auth-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .auth-input, .auth-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .auth-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .auth-input:focus, .auth-textarea:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .auth-btn:hover {
+            background-color: #1b64da;
+        }
+
+        .admin-accordion-btn {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .admin-accordion-btn:hover {
+            background-color: #f1f3f5;
+        }
+
+        .admin-accordion-content {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 8px 4px 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+        .admin-accordion-content.active {
+            display: flex;
+        }
+
+        .date-picker-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--input-bg);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 6px;
+        }
+
+        .date-picker-box label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .date-picker-box input[type="date"] {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: #ffffff;
+            outline: none;
+        }
+
+        .user-list-box {
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--input-bg);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            gap: 8px;
+        }
+
+        .user-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .user-item-top {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .user-seq {
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .user-status-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: inline-block;
+            width: fit-content;
+        }
+        .user-status-badge.done {
+            background-color: #e6f9ec;
+            color: var(--accent-green);
+        }
+        .user-status-badge.yet {
+            background-color: #ffeeee;
+            color: var(--accent-red);
+        }
+
+        .btn-del-user {
+            background-color: #ffeeee;
+            color: var(--accent-red);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .header {
+            padding: 18px 16px 12px;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title-box {
+            flex: 1;
+            min-width: 0;
+            margin-right: 8px;
+        }
+
+        .header-title-box h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 3px;
+            letter-spacing: -0.4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header .date-time {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-right-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .btn-gear {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: background-color 0.15s;
+        }
+
+        .btn-emergency {
+            background-color: #ffeeee;
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 10px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            box-shadow: 0 2px 4px rgba(255, 59, 48, 0.1);
+            transition: transform 0.1s;
+        }
+
+        /* 비상 알림 배너 스타일 및 점멸 애니메이션 */
+        .emergency-banner {
+            display: none;
+            margin: 0 16px 8px;
+            background-color: var(--accent-red);
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            align-items: center;
+            justify-content: space-between;
+            animation: blinkEmergency 1.2s infinite;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+            z-index: 10;
+        }
+
+        @keyframes blinkEmergency {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.99); }
+        }
+
+        .push-alert {
+            margin: 0 16px 10px;
+            background-color: #ffeeee;
+            color: var(--accent-red);
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .push-alert .arrow-icon { font-size: 0.7rem; opacity: 0.7; }
+
+        .tab-menu {
+            display: flex;
+            background-color: var(--bg-color);
+            padding: 4px 16px;
+            gap: 6px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 0;
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-blue);
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tab-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            color: var(--text-sub) !important;
+            background: none !important;
+        }
+
+        .content {
+            flex: 1;
+            padding: 12px 16px 16px;
+            overflow-y: auto;
+        }
+
+        .page { display: none; min-height: 100%; }
+        .page.active { display: block; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 22px;
+            padding: 18px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .card-slim { padding: 12px 14px; margin-bottom: 8px; }
+
+        .card-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .card-header-icon-box {
+            width: 36px;
+            height: 36px;
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-header-icon-box svg { width: 22px; height: 22px; }
+
+        .card-header-title { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
+
+        .env-dropdown-container { position: relative; width: 100%; }
+
+        .env-select-btn {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: var(--input-bg);
+            border: 1px solid transparent;
+            border-radius: 16px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-sub);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .env-options-menu {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .env-options-menu.active { display: flex; }
+
+        .env-option-item {
+            background-color: var(--input-bg);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .input-group { display: flex; gap: 8px; align-items: center; }
+
+        .text-input {
+            flex: 1;
+            padding: 14px 16px;
+            background-color: var(--input-bg);
+            border: 1px solid transparent;
+            border-radius: 16px;
+            color: var(--text-main);
+            font-size: 0.88rem;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .btn-add-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .btn-star-icon {
+            background-color: var(--input-bg);
+            color: var(--text-sub);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-star-icon.active {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+        }
+
+        .example-controls { display: flex; gap: 6px; margin-top: 10px; }
+
+        .btn-ex-action {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-ex-add { background-color: var(--accent-blue-light); color: var(--accent-blue); }
+        .btn-ex-del { background-color: #ffeeee; color: var(--accent-red); }
+
+        .task-list-container { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+        .task-item-badge {
+            background-color: var(--input-bg);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item-badge .btn-del { color: var(--text-sub); font-weight: bold; cursor: pointer; }
+
+        .work-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+
+        .work-item {
+            background-color: var(--input-bg);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 0.76rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .more-section { display: none; margin-top: 12px; }
+        .more-section.active { display: block; }
+
+        .integrated-task-bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+            border: 1px solid var(--accent-blue-light);
+            border-radius: 14px;
+            padding: 6px 8px;
+            margin-bottom: 10px;
+        }
+
+        .task-bar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .sub-page-badge { font-size: 0.7rem; font-weight: 700; color: var(--accent-blue); background-color: var(--accent-blue-light); padding: 2px 6px; border-radius: 6px; }
+        .task-bar-title { font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+        .btn-sub-page { background-color: var(--input-bg); border: none; color: var(--accent-blue); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.72rem; }
+
+        .status-card {
+            background-color: var(--input-bg);
+            border: 1.5px dashed #d1d5db;
+            opacity: 0.7;
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .status-card:hover { opacity: 0.9; }
+
+        .status-card.confirmed {
+            background-color: var(--accent-blue-light);
+            border: 1.5px solid var(--accent-blue);
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(49, 130, 246, 0.1);
+        }
+
+        .status-card.danger-card {
+            background-color: #fff8f8;
+            border: 1.5px dashed #fca5a5;
+        }
+
+        .status-card.danger-card.confirmed {
+            background-color: #ffeeee;
+            border: 1.5px solid var(--accent-red);
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.1);
+        }
+
+        .invalid-task-box {
+            background-color: #fff4f4;
+            border: 1.5px solid var(--accent-red);
+            border-radius: 16px;
+            padding: 16px;
+            color: #d32f2f;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .invalid-task-box h3 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-compact-text { 
+            font-size: 0.78rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            flex: 1; 
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .btn-click-more { 
+            font-size: 0.75rem; 
+            color: var(--accent-blue); 
+            font-weight: 700; 
+            white-space: nowrap; 
+            flex-shrink: 0; 
+        }
+
+        .accident-card-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .accident-title-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .accident-date-text {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .ppe-compact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            width: 100%;
+        }
+
+        .ppe-compact-card {
+            background-color: var(--input-bg);
+            border-radius: 14px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            border: 1.5px dashed #d1d5db;
+            opacity: 0.7;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .ppe-compact-card:hover { opacity: 0.9; }
+
+        .ppe-compact-card.confirmed {
+            background-color: var(--accent-blue-light);
+            border: 1.5px solid var(--accent-blue);
+            opacity: 1;
+            box-shadow: 0 4px 10px rgba(49, 130, 246, 0.1);
+        }
+
+        .ppe-left-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .ppe-compact-icon {
+            width: 28px;
+            height: 28px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+        .ppe-compact-icon svg { width: 18px; height: 18px; }
+
+        .ppe-compact-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .loading-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 공지사항 스타일 */
+        .notice-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .notice-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notice-card-title {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .notice-card-date {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+        }
+        .notice-card-content {
+            font-size: 0.8rem;
+            color: var(--text-main);
+            white-space: pre-line;
+            line-height: 1.4;
+        }
+.notice-card-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 6px;
+        }
+
+        /* 기상 지역 선택 grid 스타일 */
+        .weather-location-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .weather-location-btn {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .weather-location-btn:active {
+            background-color: var(--accent-blue-light);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.4); z-index: 200; justify-content: center; align-items: flex-end; }
+        .modal-overlay.active { display: flex; }
+        .modal-container { width: 100%; max-height: 80%; background-color: var(--card-bg); border-top-left-radius: 28px; border-top-right-radius: 28px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        .btn-close-modal { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; }
+        .modal-body { padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-size: 0.82rem; line-height: 1.5; color: var(--text-main); }
+        .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+
+        .footer { padding: 12px 16px; background-color: var(--card-bg); display: flex; gap: 8px; }
+        .btn-nav { flex: 1; padding: 14px; background-color: var(--accent-blue); color: white; border: none; border-radius: 16px; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-align: center; }
+        .btn-nav.secondary { background-color: var(--input-bg); color: var(--text-main); }
+        .btn-nav:disabled { 
+            background-color: #d1d5db !important; 
+            color: #9ca3af !important; 
+            cursor: not-allowed !important; 
+            box-shadow: none !important;
+            opacity: 0.6;
+        }
+        .btn-submit { background-color: var(--accent-green); }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+
+    <!-- ① 로그인 오버레이 -->
+    <div id="loginOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <div>
+                <div class="auth-title">현장 맞춤형 통합 안전관리 시스템</div>
+                <div class="auth-subtitle">순번과 비밀번호를 입력해 주세요.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">순번</label>
+                <input type="text" id="loginSeq" class="auth-input" placeholder="순번 입력" onkeydown="if(event.key==='Enter') handleLogin()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">비밀번호</label>
+                <input type="password" id="loginPwd" class="auth-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') handleLogin()">
+            </div>
+
+            <button type="button" class="auth-btn" onclick="handleLogin()">접속하기</button>
+        </div>
+    </div>
+
+    <!-- ② 설정/관리자 오버레이 -->
+    <div id="settingsOverlay" class="auth-overlay" style="display: none;">
+        <div class="auth-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="auth-title" id="settingsModalTitle" style="text-align: left; margin:0;">☰ 설정 및 계정</div>
+                <button type="button" class="btn-close-modal" onclick="closeSettingsOverlay()">✕</button>
+            </div>
+
+            <div id="userInfoSection" style="background-color: var(--input-bg); padding: 12px 14px; border-radius: 12px; font-size: 0.85rem; color: var(--text-main);"></div>
+
+            <div id="adminSection" style="display: none; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                
+          
+
+                <!-- 관리자 메뉴 1: 계정 추가 -->
+                <div>
+                    <button type="button" class="admin-accordion-btn" onclick="toggleAdminMenu('addAccountContent')">
+                        <span>➕ 작업자 계정 추가 </span>
+                        <span id="arrow_addAccountContent">▼</span>
+                    </button>
+                    <div id="addAccountContent" class="admin-accordion-content">
+    <input type="text" id="newSeq" class="auth-input" placeholder="새 순번 (예: 123456)">
+    <input type="text" id="newName" class="auth-input" placeholder="새 이름 (예: 김OO)">
+    <input type="password" id="newPwd" class="auth-input" placeholder="새 비밀번호">
+    <!-- API KEY 입력 상자 추가 -->
+    <input type="text" id="newApiKey" class="auth-input" placeholder="API KEY 입력">
+    <button type="button" class="auth-btn" style="padding: 12px; background-color: var(--accent-green);" onclick="addWorkerAccount()">계정 추가하기</button>
+    
+    <div style="font-size: 0.75rem; color: var(--text-sub); margin-top: 6px;">현재 등록된 작업자 목록</div>
+    <div class="user-list-box" id="workerAddListBox"></div>
+</div>
+
+
+
+                </div>
+
+
+      <!-- 관리자 메뉴 2: 공지사항 등록 및 저장 -->
+                <div>
+                    <button type="button" class="admin-accordion-btn" onclick="toggleAdminMenu('noticeAdminContent')">
+                        <span>📢 현장 공지사항 등록 </span>
+                        <span id="arrow_noticeAdminContent">▼</span>
+                    </button>
+                    <div id="noticeAdminContent" class="admin-accordion-content">
+                        <input type="text" id="noticeTitle" class="auth-input" placeholder="공지 제목">
+                        <textarea id="noticeContent" class="auth-textarea" placeholder="공지 상세 내용을 입력하세요"></textarea>
+                        
+                        <div class="form-group">
+                            <label class="form-label">📷 현장/안전사진 첨부</label>
+                            <input type="file" id="noticeImageFile" accept="image/*" class="auth-input" style="padding:8px;">
+                        </div>
+                        
+                        <button type="button" class="auth-btn" style="padding: 12px; background-color: var(--accent-blue);" onclick="submitAdminNotice()">공지사항 등록하기</button>
+                    </div>
+                </div>
+
+
+                <!-- 관리자 메뉴 3: 이력 조회 -->
+                <div>
+                    <button type="button" class="admin-accordion-btn" onclick="toggleAdminMenu('historyContent')">
+                        <span>📋 작업 등록 및 서명 이력</span>
+                        <span id="arrow_historyContent">▼</span>
+                    </button>
+                    <div id="historyContent" class="admin-accordion-content">
+                        <div class="date-picker-box">
+                            <label for="historyDatePicker">📅 날짜 선택:</label>
+                            <input type="date" id="historyDatePicker" onchange="fetchHistoryByDate(this.value)">
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 4px;" id="historyDateNotice">선택 날짜 작업자별 서명 완료 여부 및 작업 정보 확인</div>
+                        <div class="user-list-box" id="workerHistoryListBox"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 4px;">
+                <button type="button" class="auth-btn" style="background-color: #ffeeee; color: var(--accent-red);" onclick="logoutUser()">로그아웃</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 헤더 -->
+    <div class="header">
+        <div class="header-title-box">
+            <h1>현장 맞춤형 통합 안전관리 시스템</h1>
+            <div class="date-time" id="currentDateDisplay">-- | 작업자 선택 필요</div>
+        </div>
+        <div class="header-right-group">
+            <button type="button" class="btn-emergency" onclick="openEmergencyModal()">🚨 비상</button>
+            <button type="button" class="btn-gear" onclick="openSettingsOverlay()" title="설정">☰</button>
+        </div>
+    </div>
+
+<!-- 실시간 비상 알림 배너 (비상 발생 시 점멸 노출 & 클릭 시 Gemini 응급조치 모달 연동) -->
+<div id="emergencyBanner" class="emergency-banner" style="cursor: pointer;" onclick="openEmergencyFirstAidFromBanner()">
+    <span id="emergencyBannerText">🚨 [긴급 비상 상황 발생]</span>
+    <button type="button" onclick="event.stopPropagation(); closeEmergencyBanner()" style="background:none; border:none; color:white; font-weight:800; font-size:1rem; cursor:pointer;">✕</button>
+</div>
+
+
+    <!-- 공지사항 팝업 연동 푸시 알림 바 -->
+    <div class="push-alert" onclick="openNoticeModal()">
+        <span id="pushAlertText">📢 [공지사항] 클릭하여 현장 최근 공지/사진 확인</span>
+        <span class="arrow-icon">▶</span>
+    </div>
+
+    <div class="tab-menu">
+        <button id="tabBtn1" class="tab-btn active" onclick="switchPage(1)">1. 작업 등록</button>
+        <button id="tabBtn2" class="tab-btn" onclick="switchPage(2)" disabled>2. AI 위험분석 & 안전 지침</button>
+    </div>
+
+    <div class="content">
+        <!-- PAGE 1 -->
+        <div id="page1" class="page active">
+<div class="card card-slim" style="cursor: pointer;" onclick="openWeatherLocationModal()" title="클릭하여 현장 기상 지역 변경">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size:0.88rem; font-weight:700;">☀️ 현장 기상 정보 <span style="font-size:0.7rem; color:var(--accent-blue); font-weight:normal;"></span></div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- 위치 표기 텍스트 추가 -->
+            <span id="weatherLocation" style="font-weight:700; font-size:0.82rem; color:var(--text-sub);">창원시</span>
+            <span id="weatherTemp" style="font-weight:800; font-size:0.9rem;">--.-℃</span>
+            <span id="weatherBadge" style="font-size:0.7rem; padding:2px 6px; border-radius:6px; background:var(--accent-blue-light); color:var(--accent-blue); font-weight:700;">🟢 양호</span>
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-slim">
+                <div class="card-title" style="margin-bottom:8px;">🏢 작업 장소</div>
+                <div class="env-dropdown-container">
+                    <button type="button" class="env-select-btn" id="envSelectBtn" onclick="toggleEnvDropdown()">
+                        <span id="selectedEnvText">작업 장소를 선택하세요</span>
+                        <span class="arrow-icon">▼</span>
+                    </button>
+                    <div class="env-options-menu" id="envOptionsMenu">
+                        <div class="env-option-item" onclick="selectEnvOption('실내 사무실 / 전산실')">📍 실내 사무실 / 전산실</div>
+                        <div class="env-option-item" onclick="selectEnvOption('실내 작업장')">📍 실내 작업장</div>
+                        <div class="env-option-item" onclick="selectEnvOption('실외 작업장')">📍 실외 작업장</div>
+                        <div class="env-option-item" onclick="selectEnvOption('밀폐/안전 취약 공간')">📍 밀폐/안전 취약 공간</div>
+                        <div class="env-option-item" onclick="selectEnvOption('고소/사다리 작업구역')">📍 고소/사다리 작업구역</div>
+                        <div class="env-option-item" onclick="selectEnvOption('가스/화학물질 취급구역')">📍 가스/화학물질 취급구역</div>
+                        <div class="env-option-item" onclick="selectEnvOption('직접 입력')">📍 직접 입력</div>
+                    </div>
+                </div>
+                <!-- 직접 입력 선택 시 활성화되는 텍스트 입력창 추가 -->
+                <div id="customEnvInputBox" style="display: none; margin-top: 8px;">
+                    <input type="text" id="customEnvInput" class="text-input" placeholder="작업 장소를 직접 입력하세요" oninput="handleCustomEnvInput(this.value)">
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📝 오늘 할 일 (모든 업무/작업 입력)</span>
+                    <button type="button" class="btn-star-icon" id="btnStarToggle" onclick="toggleExampleSection(this)" title="즐겨찾기">⭐</button>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="taskInput" class="text-input" placeholder="예: 납땜, 컴퓨터 사무작업, 용접, 크레인 운용" onkeydown="handleTaskEnter(event)">
+                    <button class="btn-add-icon" onclick="addTask()" title="추가">➕</button>
+                </div>
+
+                <div id="workSection" class="more-section">
+                    <div class="work-grid" id="exampleWorkGrid"></div>
+                    <div class="example-controls">
+                        <button type="button" class="btn-ex-action btn-ex-add" onclick="openAddDialogModal()">➕ 항목 추가</button>
+                        <button type="button" class="btn-ex-action btn-ex-del" id="btnExDel" onclick="deleteCheckedExamples()">➖ 항목 삭제</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="taskListCard" style="display: none;">
+                <div class="card-title">
+                    <span>📋 등록된 오늘 작업 목록</span>
+                    <span id="taskCount" style="font-size:0.75rem; color:var(--accent-blue);">0건</span>
+                </div>
+                <div id="taskList" class="task-list-container"></div>
+            </div>
+        </div>
+
+        <!-- PAGE 2 -->
+        <div id="page2" class="page">
+            <div id="integratedTaskBar" class="integrated-task-bar" style="display: none;">
+                <button class="btn-sub-page" id="btnSubPrev" onclick="prevSubPage()">◀ 이전</button>
+                <div class="task-bar-center">
+                    <span id="subPageIndicator" class="sub-page-badge">1/1</span>
+                    <span id="activeTaskTextSpan" class="task-bar-title">작업명</span>
+                </div>
+                <button class="btn-sub-page" id="btnSubNext" onclick="nextSubPage()">다음 ▶</button>
+            </div>
+
+<div class="card">
+    <div class="card-header-with-icon">
+        <div class="card-header-icon-box" style="background: rgba(255, 59, 48, 0.1);">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 22H22L12 2Z" fill="#FF3B30" opacity="0.15"/>
+                <path d="M12 4L3.8 20.5H20.2L12 4Z" stroke="#FF3B30" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M12 9V14" stroke="#FF3B30" stroke-width="2.2" stroke-linecap="round"/>
+                <circle cx="12" cy="17.5" r="1.2" fill="#FF3B30"/>
+            </svg>
+        </div>
+        <div class="card-header-title">AI 위험요인 분석</div>
+    </div>
+    <div id="aiAnalysisBox"></div>
+</div>
+
+
+<div class="card" id="ppeCard">
+    <div class="card-header-with-icon">
+        <div class="card-header-icon-box" style="background: rgba(49, 130, 246, 0.1);">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L20 6.5V12C20 16.5 16.5 20.5 12 21.8C7.5 20.5 4 16.5 4 12V6.5L12 3Z" fill="#3182F6" opacity="0.15"/>
+                <path d="M12 3L20 6.5V12C20 16.5 16.5 20.5 12 21.8C7.5 20.5 4 16.5 4 12V6.5L12 3Z" stroke="#3182F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 12L11 14L15.5 9.5" stroke="#3182F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div style="flex:1;">
+            <div class="card-header-title">추천 착용 보호구</div>
+        </div>
+    </div>
+    <div id="ppeDetailList" class="ppe-compact-grid"></div>
+</div>
+
+
+<div class="card" id="accidentCard">
+    <div class="card-header-with-icon">
+        <div class="card-header-icon-box" style="background: rgba(255, 149, 0, 0.1);">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="9" fill="#FF9500" opacity="0.15"/>
+                <circle cx="12" cy="12" r="9" stroke="#FF9500" stroke-width="2"/>
+                <path d="M12 7V13" stroke="#FF9500" stroke-width="2.2" stroke-linecap="round"/>
+                <circle cx="12" cy="16" r="1.1" fill="#FF9500"/>
+            </svg>
+        </div>
+        <div class="card-header-title">연관 사고 사례</div>
+    </div>
+    <div id="accidentCasesBox"></div>
+</div>
+
+        </div>
+    </div>
+
+    <div class="footer" id="footerNav"></div>
+
+    <!-- 모달 창들 -->
+    <!-- 비상 상황 입력 모달 -->
+    <div id="emergencyModal" class="modal-overlay" onclick="closeEmergencyModal(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 style="color:var(--accent-red);">🚨 긴급 비상 상황 발생 알림</h2>
+                <button class="btn-close-modal" onclick="closeEmergencyModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size:0.8rem; color:var(--text-sub);">
+                    비상 버튼 클릭 즉시 관제 및 현장 관리자에게 전달됩니다.<br>상황 내용을 상세히 적어주세요.
+                </div>
+                <div class="form-group">
+                    <label class="form-label">발생 위치/장소</label>
+                    <input type="text" id="emergencyLocationInput" class="auth-input" placeholder="예: 2층 용접작업장, B동 고소작업구역">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">비상 상황 상세 입력</label>
+                    <textarea id="emergencyDetailsInput" class="auth-textarea" placeholder="예: 작업자 부상 발생, 가스 누출 의심, 화재 연기 발생 등"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-nav secondary" onclick="closeEmergencyModal()">취소</button>
+                <button type="button" class="btn-nav" style="background-color: var(--accent-red);" onclick="submitEmergencyAlert()">🚨 비상 상황 발송</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 정보 모달 -->
+    <div id="detailInfoModal" class="modal-overlay" onclick="closeDetailModal(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modalDetailTitle">📋 상세 안내</h2>
+                <button class="btn-close-modal" onclick="closeDetailModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalDetailBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-nav" id="btnModalConfirm" onclick="confirmModalAndActivate()">확인 (내용 숙지완료)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 예시 항목 모달 -->
+    <div id="addDialogModal" class="modal-overlay" onclick="closeAddDialogModal(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>⭐ 예시 항목 추가 선택</h2>
+                <button class="btn-close-modal" onclick="closeAddDialogModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size:0.78rem; color:var(--text-sub); margin-bottom: 6px;">추가할 기본 작업 항목을 선택하세요:</div>
+                <div class="work-grid" id="modalPresetGrid"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-nav secondary" onclick="closeAddDialogModal()">취소</button>
+                <button type="button" class="btn-nav" onclick="confirmAddDialogSelection()">항목에 추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 공지사항 모달 (작업자 및 전체 사용자용) -->
+    <div id="noticeListModal" class="modal-overlay" onclick="closeNoticeModal(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>📢 현장 공지사항</h2>
+                <button class="btn-close-modal" onclick="closeNoticeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="noticeModalBody">
+                <div class="loading-box"><div class="spinner"></div><span>공지사항 불러오는 중...</span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-nav" onclick="closeNoticeModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 기상 지역 선택 모달 -->
+    <div id="weatherLocationModal" class="modal-overlay" onclick="closeWeatherLocationModal(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>☀️ 현장 기상 지역 선택</h2>
+                <button class="btn-close-modal" onclick="closeWeatherLocationModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size:0.78rem; color:var(--text-sub); margin-bottom: 6px;">날씨 조회를 위한 지역을 선택하세요:</div>
+                <div class="weather-location-grid" id="weatherLocationGrid">
+                    <!-- 스크립트로 자동 버튼 생성 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-nav secondary" onclick="closeWeatherLocationModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+// admin 계정용 기본 GEMINI API KEY
+const DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6JmCQ0hMK7ig5oPn_8jNyC24hzcj_ex3IXpcdUdS4Long"; 
+
+// 로그인한 작업자의 API KEY를 저장할 전역 변수
+let currentUserApiKey = "";
+
+/**
+ * 로그인한 계정의 API KEY를 기반으로 Gemini API URL을 동적으로 생성하는 함수
+ */
+function getGeminiApiUrl() {
+    const key = currentUserApiKey || DEFAULT_GEMINI_API_KEY;
+    return `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`;
+}
+
+    
+    // 구글 시트 웹 앱 서버 URL
+    const GOOGLE_SHEET_SERVER_URL = "https://script.google.com/macros/s/AKfycbwqtmI0qijd5O3AlAghcPVwIo4wIkUUfJDzMrMEw6XvWXWL3v2mf1fJeDPolvIeb_V2jA/exec";
+
+    let currentPage = 1;
+    let registeredTasks = [];
+    let exampleList = []; 
+    let currentSubPageIndex = 0;
+    let selectedEnvValue = '작업 장소를 선택하세요'; 
+    let activeTargetElementId = null; 
+    let isAdminUser = false;
+    let currentWorkerSeq = '';
+    let currentWorkerName = '';
+    let selectedHistoryDate = new Date().toISOString().split('T')[0];
+    let lastEmergencyTime = "";
+
+    // 로컬 스토리지에 작업자 계정 관리
+    let workerAccounts =[];
+
+    function saveWorkerAccounts() {
+        localStorage.setItem('safety_app_workers', JSON.stringify(workerAccounts));
+    }
+
+    function resetSignState() {
+        const workerIndex = workerAccounts.findIndex(acc => String(acc.seq) === String(currentWorkerSeq));
+        if (workerIndex !== -1) {
+            workerAccounts[workerIndex].signed = false;
+            saveWorkerAccounts();
+        }
+        renderFooterButtons();
+    }
+
+    // 로그인 처리
+async function handleLogin() {
+    const seqInput = document.getElementById('loginSeq').value.trim();
+    const pwdInput = document.getElementById('loginPwd').value.trim();
+
+    if (!seqInput || !pwdInput) {
+        alert('순번과 비밀번호를 모두 입력해 주세요.');
+        return;
+    }
+
+    if (seqInput === 'admin' && pwdInput === 'admin') {
+        isAdminUser = true;
+        currentWorkerSeq = 'admin';
+        currentWorkerName = '관리자';
+        currentUserApiKey = DEFAULT_GEMINI_API_KEY; // admin 계정만 기본 API KEY 사용 허용
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('loginSeq').value = '';
+        document.getElementById('loginPwd').value = '';
+        updateCurrentDate();
+        return;
+    }
+
+    // 🟢 [최적화] 1차적으로 수신되어 있는 목록(또는 로컬 저장소)에서 즉시 조회 (대기시간 0초)
+    let found = workerAccounts.find(acc => String(acc.seq) === String(seqInput) && String(acc.pwd) === String(pwdInput));
+
+    // 만약 초기 진입 시 통신 지연으로 최신 목록이 안 읽혔을 경우에만 백그라운드 1회 재동기화
+    if (!found) {
+        await syncAccountsFromGoogleSheet();
+        found = workerAccounts.find(acc => String(acc.seq) === String(seqInput) && String(acc.pwd) === String(pwdInput));
+    }
+
+
+if (found) {
+        if (found.status === '비활성화') {
+            alert('해당 계정은 삭제 처리되어 로그인할 수 없습니다.\n관리자에게 문의하세요.');
+            return;
+        }
+
+        isAdminUser = false;
+        currentWorkerSeq = found.seq;
+        currentWorkerName = found.name;
+
+        // 🟢 API KEY가 존재하면 해당 키를 사용하고, 비어있으면 admin의 DEFAULT_GEMINI_API_KEY를 자동 할당
+        if (found.apiKey && found.apiKey.trim() !== '') {
+            currentUserApiKey = found.apiKey.trim();
+        } else {
+            currentUserApiKey = DEFAULT_GEMINI_API_KEY;
+        }
+
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('loginSeq').value = '';
+        document.getElementById('loginPwd').value = '';
+        updateCurrentDate();
+    }
+
+ else {
+        alert('순번 또는 비밀번호가 올바르지 않거나 서버에 등록되지 않은 계정입니다.');
+    }
+}
+
+
+
+function openSettingsOverlay() {
+    const userInfoSec = document.getElementById('userInfoSection');
+    const adminSec = document.getElementById('adminSection');
+    const titleEl = document.getElementById('settingsModalTitle');
+
+    document.getElementById('noticeAdminContent').classList.remove('active');
+    document.getElementById('addAccountContent').classList.remove('active');
+    document.getElementById('historyContent').classList.remove('active');
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('historyDatePicker').value = selectedHistoryDate || todayStr;
+
+    if (isAdminUser) {
+        titleEl.innerText = '🛠️ 관리자 메뉴';
+        userInfoSec.innerHTML = `<div><strong>현재 계정:</strong> 관리자 (admin)</div>`;
+        adminSec.style.display = 'flex';
+        renderWorkerLists();
+    } else {
+        titleEl.innerText = '☰ 설정 및 계정 정보';
+        userInfoSec.innerHTML = `<div><strong>현재 계정:</strong> ${currentWorkerName} (순번: ${currentWorkerSeq})</div>`;
+        adminSec.style.display = 'none';
+    }
+
+    // 🟢 UI를 먼저 즉시 띄웁니다 (체감 속도 0초).
+    document.getElementById('settingsOverlay').style.display = 'flex';
+
+    // 🟢 비동기 백그라운드 동기화 진행 후 목록만 새로고침
+    if (isAdminUser) {
+        syncAccountsFromGoogleSheet().then(() => {
+            renderWorkerLists();
+        });
+    }
+}
+
+    function closeSettingsOverlay() {
+        document.getElementById('settingsOverlay').style.display = 'none';
+    }
+
+function toggleAdminMenu(contentId) {
+    const contentEl = document.getElementById(contentId);
+    const arrowEl = document.getElementById('arrow_' + contentId);
+    const isActive = contentEl.classList.contains('active');
+
+    if (isActive) {
+        contentEl.classList.remove('active');
+        arrowEl.innerText = '▼';
+    } else {
+        // 🟢 UI 토글을 즉시 실행
+        contentEl.classList.add('active');
+        arrowEl.innerText = '▲';
+        
+        if (contentId === 'historyContent') {
+            const historyBox = document.getElementById('workerHistoryListBox');
+            if (historyBox) {
+                historyBox.innerHTML = `<div class="loading-box"><div class="spinner"></div><span>이력 불러오는 중...</span></div>`;
+            }
+            const datePickerVal = document.getElementById('historyDatePicker').value;
+            fetchHistoryByDate(datePickerVal); // 백그라운드 처리
+        } else if (contentId !== 'noticeAdminContent') {
+            renderWorkerLists();
+        }
+    }
+}
+
+async function syncAccountsFromGoogleSheet() {
+    try {
+        const response = await fetch(`${GOOGLE_SHEET_SERVER_URL}?action=getUsers&t=${new Date().getTime()}`);
+        if (response.ok) {
+            const serverUsers = await response.json();
+            if (Array.isArray(serverUsers)) {
+                // 기존 로컬 배열을 완전히 비우고 구글 시트 최신 유저 목록으로 교체
+                workerAccounts = serverUsers;
+            }
+        }
+    } catch (err) {
+        console.warn("계정 불러오기 실패:", err);
+        workerAccounts = [];
+    }
+}
+
+
+    /* --- [관리자 공지사항 등록 및 시트 전송 기능] --- */
+async function submitAdminNotice() {
+    const title = document.getElementById('noticeTitle').value.trim();
+    const content = document.getElementById('noticeContent').value.trim();
+    const fileInput = document.getElementById('noticeImageFile');
+
+    if (!title || !content) {
+        alert('공지 제목과 내용을 모두 입력해 주세요.');
+        return;
+    }
+
+    let base64Image = "";
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        base64Image = await convertFileToBase64(file);
+    }
+
+    const payload = {
+        action: 'addNotice',
+        author: currentWorkerName || '관리자',
+        title: title,
+        content: content,
+        image: base64Image
+    };
+
+    try {
+        const response = await fetch(GOOGLE_SHEET_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        if (result.result === "success") {
+            alert('공지사항 등록 및 텔레그램 사진/문자 전송이 완료되었습니다!');
+            document.getElementById('noticeTitle').value = '';
+            document.getElementById('noticeContent').value = '';
+            document.getElementById('noticeImageFile').value = '';
+            toggleAdminMenu('noticeAdminContent');
+        } else {
+            alert('전송 실패: ' + (result.message || '알 수 없는 오류'));
+        }
+    } catch (error) {
+        console.error('공지 전송 오류:', error);
+        alert('공지 저장 및 전송 중 오류가 발생했습니다.');
+    }
+}    
+
+
+function convertFileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    /* --- [작업자 공지사항 조회 모달 기능] --- */
+// [수정 후] 안내해주신 GET 방식 가이드를 반영한 코드
+async function openNoticeModal() {
+    const modal = document.getElementById('noticeListModal');
+    const modalBody = document.getElementById('noticeModalBody');
+    modal.classList.add('active');
+
+    modalBody.innerHTML = `<div class="loading-box"><div class="spinner"></div><span>최신 공지를 불러오는 중...</span></div>`;
+
+    try {
+        const response = await fetch(`${GOOGLE_SHEET_SERVER_URL}?action=getNotices&t=${new Date().getTime()}`);
+        const data = await response.json();
+
+        if (data && data.notices && data.notices.length > 0) {
+            modalBody.innerHTML = data.notices.map(notice => `
+                <div class="notice-card" id="notice-card-${notice.rowIndex}">
+                    <div class="notice-card-header">
+                        <span class="notice-card-title">📌 ${notice.title}</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="notice-card-date">${notice.date}</span>
+                            ${isAdminUser ? `<button type="button" class="btn-del-user" onclick="deleteAdminNotice(${notice.rowIndex})">삭제</button>` : ''}
+                        </div>
+                    </div>
+                    <div class="notice-card-content">${notice.content}</div>
+                    ${notice.image ? `<img src="${notice.image}" class="notice-card-img" alt="공지 첨부사진">` : ''}
+                </div>
+            `).join('');
+        } else {
+            modalBody.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-sub);">등록된 공지사항이 없습니다.</div>`;
+        }
+    } catch (e) {
+        console.error(e);
+        modalBody.innerHTML = `<div style="text-align:center; padding:20px; color:var(--accent-red);">공지사항을 불러오는 중 오류가 발생했습니다.</div>`;
+    }
+}
+
+async function deleteAdminNotice(rowIndex) {
+    if (!confirm("해당 공지사항을 삭제하시겠습니까?\n삭제 처리 시 작업자 화면에 더 이상 노출되지 않습니다.")) return;
+
+    try {
+        await fetch(GOOGLE_SHEET_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'deleteNotice',
+                rowIndex: rowIndex
+            })
+        });
+
+        alert("공지사항이 비활성화 처리되었습니다.");
+        // 목록 새로고침 (비활성화 처리된 항목은 수신되지 않음)
+        openNoticeModal();
+    } catch (error) {
+        console.error('공지 삭제 처리 오류:', error);
+        alert('공지 삭제 처리 중 오류가 발생했습니다.');
+    }
+}
+
+    function closeNoticeModal(event) {
+        if (!event || event.target.id === 'noticeListModal' || event.target.classList.contains('btn-close-modal')) {
+            document.getElementById('noticeListModal').classList.remove('active');
+        }
+    }
+
+
+
+
+async function fetchHistoryByDate(dateVal) {
+    if (!dateVal) return;
+    selectedHistoryDate = dateVal;
+    
+    // 1. 구글 시트에서 최신 사용자 및 해당 일자 이력 수신
+    await syncAccountsFromGoogleSheet();
+    
+    try {
+        const response = await fetch(`${GOOGLE_SHEET_SERVER_URL}?action=getHistoryByDate&date=${dateVal}&t=${new Date().getTime()}`);
+        if (response.ok) {
+            const serverHistory = await response.json();
+            if (Array.isArray(serverHistory)) {
+                // 구글 시트 이력 데이터만 매핑
+                workerAccounts.forEach(worker => {
+                    worker.dateHistory = {}; // 이전 캐시 내역 초기화
+                    const sh = serverHistory.find(item => String(item.seq) === String(worker.seq));
+                    if (sh) {
+                        worker.dateHistory[dateVal] = {
+                            signed: true,
+                            signTime: sh.signTime,
+                            tasks: sh.tasks,
+                            location: sh.location
+                        };
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.error("서버 연동 실패:", e);
+    }
+
+    renderWorkerLists();
+}
+
+
+async function addWorkerAccount() {
+    const seq = document.getElementById('newSeq').value.trim();
+    const name = document.getElementById('newName').value.trim();
+    const pwd = document.getElementById('newPwd').value.trim();
+    const apiKey = document.getElementById('newApiKey').value.trim(); // API KEY 읽기 추가
+
+    if (!seq || !name || !pwd) {
+        alert('순번, 이름, 비밀번호를 모두 입력하세요.');
+        return;
+    }
+
+    if (seq === 'admin') {
+        alert("'admin'은 관리자 전용 순번입니다.");
+        return;
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEET_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'addAccount',
+                seq: seq,
+                name: name,
+                pwd: pwd,
+                apiKey: apiKey // 서버로 API KEY 전송 추가
+            })
+        });
+
+        alert(`순번 [${seq}] ${name} 작업자 계정이 구글 시트에 등록되었습니다.`);
+        document.getElementById('newSeq').value = '';
+        document.getElementById('newName').value = '';
+        document.getElementById('newPwd').value = '';
+        document.getElementById('newApiKey').value = ''; // 입력란 초기화
+
+        // 등록 후 구글시트에서 최신 계정 목록 재동기화
+        await syncAccountsFromGoogleSheet();
+        renderWorkerLists();
+    } catch (error) {
+        console.error('서버 연동 오류:', error);
+        alert(`서버 전송 중 오류가 발생했습니다.`);
+    }
+}
+
+
+async function deleteWorkerAccount(seq) {
+    if (confirm(`순번 [${seq}] 계정을 삭제(비활성화) 하시겠습니까?\n구글 시트 처리 후 해당 계정으로 더 이상 로그인할 수 없습니다.`)) {
+        try {
+            await fetch(GOOGLE_SHEET_SERVER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'deleteAccount',
+                    seq: seq
+                })
+            });
+            alert(`순번 [${seq}] 계정이 비활성화 처리되었습니다.`);
+
+            // 삭제 처리 후 구글 시트에서 최신 목록 재동기화
+            await syncAccountsFromGoogleSheet();
+            renderWorkerLists();
+        } catch (error) {
+            console.error('삭제 요청 중 오류 발생:', error);
+            alert('서버 업데이트 중 네트워크 오류가 발생했습니다.');
+        }
+    }
+}
+
+// 긴 날짜 문자열을 "YYYY-MM-DD HH:mm" 형식으로 변환해 주는 헬퍼 함수
+    function formatDateTime(dateInput) {
+        if (!dateInput) return '';
+        const d = new Date(dateInput);
+        if (isNaN(d.getTime())) return dateInput; // 변환 불가 시 원본 반환
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+
+function renderWorkerLists() {
+    const addBox = document.getElementById('workerAddListBox');
+    const historyBox = document.getElementById('workerHistoryListBox');
+    const queryDate = selectedHistoryDate || new Date().toISOString().split('T')[0];
+
+    const noticeEl = document.getElementById('historyDateNotice');
+    if (noticeEl) {
+        noticeEl.innerText = `📅 [${queryDate}] 작업자별 서명 완료 및 작업 확인`;
+    }
+
+    // 1. 계정 관리 전용: 현재 활성화 상태인 계정만 추출
+    const activeAccounts = workerAccounts.filter(acc => acc.status !== '비활성화');
+
+    // 2. 이력 조회 전용 조건:
+    // - 상태가 '활성'인 계정
+    // - 비활성화 계정이더라도 선택한 날짜(queryDate)에 서명/이력 데이터(dateHistory)가 존재하는 경우
+    const historyTargetAccounts = workerAccounts.filter(acc => {
+        const isActive = acc.status !== '비활성화';
+        const hasHistoryOnDate = acc.dateHistory && 
+                                 acc.dateHistory[queryDate] && 
+                                 acc.dateHistory[queryDate].signed;
+        return isActive || hasHistoryOnDate;
+    });
+
+    // ① 작업자 계정 추가/관리 영역 렌더링
+    if (addBox) {
+        if (activeAccounts.length === 0) {
+            addBox.innerHTML = `<div style="font-size:0.75rem; color:var(--text-sub); text-align:center; padding:12px;">등록된 작업자가 없습니다.</div>`;
+        } else {
+            addBox.innerHTML = activeAccounts.map(acc => `
+                <div class="user-item">
+                    <div class="user-item-info">
+                        <div class="user-item-top">
+                            <span class="user-seq">${acc.seq}</span>
+                            <span class="user-name">${acc.name}</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-del-user" onclick="deleteWorkerAccount('${acc.seq}')">삭제</button>
+                </div>
+            `).join('');
+        }
+    }
+
+    // ② 작업 등록 및 서명 이력 영역 렌더링
+    if (historyBox) {
+        if (historyTargetAccounts.length === 0) {
+            historyBox.innerHTML = `<div style="font-size:0.75rem; color:var(--text-sub); text-align:center; padding:12px;">선택 날짜에 해당하는 이력이 없습니다.</div>`;
+        } else {
+            historyBox.innerHTML = historyTargetAccounts.map(acc => {
+                let isSigned = false;
+                let signTimeStr = '';
+                let taskDetails = '';
+                let locationDetails = '';
+
+                if (acc.dateHistory && acc.dateHistory[queryDate]) {
+                    isSigned = acc.dateHistory[queryDate].signed;
+                    signTimeStr = acc.dateHistory[queryDate].signTime || '';
+                    taskDetails = acc.dateHistory[queryDate].tasks || '';
+                    locationDetails = acc.dateHistory[queryDate].location || '';
+                }
+
+                const formattedTime = formatDateTime(signTimeStr);
+
+                // 상태 표시 배너 (비활성 계정 태그 추가 표시)
+                const isInactive = acc.status === '비활성화';
+                const inactiveTag = isInactive ? ` <span style="font-size:0.68rem; color:var(--text-sub);">(비활성)</span>` : '';
+
+                const statusBadge = isSigned 
+                    ? `<span class="user-status-badge done">✅ 서명완료 (${formattedTime})</span>` 
+                    : `<span class="user-status-badge yet">❌ 미완료 (${queryDate})</span>`;
+
+                const infoDisplay = isSigned && (locationDetails || taskDetails) 
+                    ? `<div style="font-size: 0.72rem; color: var(--text-sub); margin-top:2px;">
+                         📌 작업 장소 : ${locationDetails || '미지정'}<br>
+                         📌 수행 작업 : ${taskDetails || '미지정'}
+                       </div>` 
+                    : (taskDetails ? `<div style="font-size: 0.72rem; color: var(--text-sub); margin-top:2px;">📌 수행 작업 : ${taskDetails}</div>` : '');
+
+                return `
+                    <div class="user-item">
+                        <div class="user-item-info">
+                            <div class="user-item-top">
+                                <span class="user-seq">${acc.seq}</span>
+                                <span class="user-name">${acc.name}</span>
+                                ${inactiveTag}
+                            </div>
+                            <div style="margin-top: 4px;">
+                                ${statusBadge}
+                                ${infoDisplay}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+}
+
+
+function logoutUser() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        isAdminUser = false;
+        currentWorkerSeq = '';
+        currentWorkerName = '';
+        currentUserApiKey = ''; // 🟢 로그아웃 시 API KEY 변수 초기화
+        closeSettingsOverlay();
+        document.getElementById('loginOverlay').style.display = 'flex';
+    }
+}
+
+
+let aiResultCache = {};
+    const confirmedCardsSet = new Set();
+
+    const PRESET_EXAMPLES = [
+        "컴퓨터 사무", "지게차 운전", "기계 해체 작업", "코팅 작업", "시험장비 운용", "납땜", "용접", 
+        "사다리 작업", "제품 조립", "포장 작업", "화학용품 사용", "전기 배선 작업"
+    ];
+
+const PPE_ICON_DATABASE = {
+        helmet: {
+            id: "helmet",
+            title: "안전모 착용",
+            category: "머리 보호",
+            lawRef: "산업안전보건기준에 관한 규칙 제32조 (보호구의 지급 등)",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M16 38C16 25 23 18 32 18C41 18 48 25 48 38H16Z" fill="#FFFFFF"/>
+              <path d="M12 38H52V42C52 43.1 51.1 44 50 44H14C12.9 44 12 43.1 12 42V38Z" fill="#FFFFFF"/>
+              <path d="M30 14H34V18H30V14Z" fill="#FFFFFF"/>
+              <path d="M22 44C22 47 26 49 32 49C38 49 42 47 42 44" stroke="#0055A5" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>`
+        },
+        goggles: {
+            id: "goggles",
+            title: "보안경 착용",
+            category: "눈 보호",
+            lawRef: "산업안전보건기준에 관한 규칙 제32조 및 제451조",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M12 24C12 21.8 13.8 20 16 20H48C50.2 20 52 21.8 52 24V34C52 39.5 47.5 44 42 44H38C35 44 33.5 42 32 42C30.5 42 29 44 26 44H22C16.5 44 12 39.5 12 34V24Z" fill="#FFFFFF"/>
+              <circle cx="23" cy="31" r="6" fill="#0055A5"/>
+              <circle cx="41" cy="31" r="6" fill="#0055A5"/>
+              <path d="M12 28H6M58 28H52" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+            </svg>`
+        },
+        faceShield: {
+            id: "faceShield",
+            title: "보안면 / 용접면 착용",
+            category: "안면 보호",
+            lawRef: "산업안전보건기준에 관한 규칙 제32조 및 제382조",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M20 16H44V26C44 37.05 38.63 44 32 44C25.37 44 20 37.05 20 26V16Z" fill="#FFFFFF"/>
+              <rect x="24" y="22" width="16" height="6" rx="1.5" fill="#0055A5"/>
+              <path d="M18 18H46" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+            </svg>`
+        },
+        earProtection: {
+            id: "earProtection",
+            title: "청력보호구 착용",
+            category: "귀 보호",
+            lawRef: "산업안전보건기준에 관한 규칙 제516조 (보호구의 지급 등)",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M20 34C20 23.5 25.37 15 32 15C38.63 15 44 23.5 44 34" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round"/>
+              <rect x="15" y="30" width="8" height="15" rx="4" fill="#FFFFFF"/>
+              <rect x="41" y="30" width="8" height="15" rx="4" fill="#FFFFFF"/>
+            </svg>`
+        },
+        respirator: {
+            id: "respirator",
+            title: "방진/방독 마스크 착용",
+            category: "호흡기 보호",
+            lawRef: "산업안전보건기준에 관한 규칙 제420조 및 제606조",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M18 28C18 28 24 20 32 20C40 20 46 28 46 28V40C46 44 40 46 32 46C24 46 18 44 18 40V28Z" fill="#FFFFFF"/>
+              <circle cx="32" cy="35" r="5" fill="#0055A5"/>
+              <path d="M18 30L10 24M46 30L54 24" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+            </svg>`
+        },
+        gloves: {
+            id: "gloves",
+            title: "안전 장갑 착용",
+            category: "손 보호",
+            lawRef: "산업안전보건기준에 관한 규칙 제32조",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M20 30V18C20 16.5 21.2 15 22.8 15C24.4 15 25.6 16.2 25.6 17.8V26M25.6 17.8C25.6 16.2 26.8 15 28.4 15C30 15 31.2 16.2 31.2 17.8V26M31.2 17.8C31.2 16.2 32.4 15 34 15C35.6 15 36.8 16.2 36.8 17.8V28M36.8 21C36.8 19.4 38 18 39.6 18C41.2 18 42.4 19.2 42.4 20.8V36C42.4 43 37.6 48 31.2 48H28C23.2 48 20 44 20 38V30Z" fill="#FFFFFF"/>
+              <path d="M20 38H42" stroke="#0055A5" stroke-width="3"/>
+            </svg>`
+        },
+        safetyShoes: {
+            id: "safetyShoes",
+            title: "안전화 착용",
+            category: "발 보호",
+            lawRef: "KOSHA GUIDE G-12-2013 및 기준 규칙 제32조",
+            svg: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="30" fill="#0055A5"/>
+              <path d="M14 40L24 24H36L50 34V44C50 46 48.2 48 46 48H18C15.8 48 14 46.2 14 44V40Z" fill="#FFFFFF"/>
+              <rect x="12" y="44" width="40" height="5" rx="2.5" fill="#FFFFFF"/>
+              <path d="M38 34C44 34 48 37 48 42H36V38C36 35.8 37.8 34 38 34Z" fill="#0055A5"/>
+            </svg>`
+        }
+    };
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        updateCurrentDate();
+        fetchRealtimeWeather();
+        renderExampleGrid();
+        renderTaskList();
+        
+        // 🟢 초기 동기화를 병렬 비동기 호출하여 로딩 딜레이 차단
+        syncAccountsFromGoogleSheet();
+        checkEmergencyAlerts();
+
+        // 5초 주기로 비상알림 지속 체크
+        setInterval(checkEmergencyAlerts, 5000);
+    });
+
+
+    /* --- [🚨 비상 상황 처리 모달 및 구글 시트 전송] --- */
+    function openEmergencyModal() {
+        const modal = document.getElementById('emergencyModal');
+        const locInput = document.getElementById('emergencyLocationInput');
+        if (selectedEnvValue && selectedEnvValue !== '작업 장소를 선택하세요') {
+            locInput.value = selectedEnvValue;
+        } else {
+            locInput.value = '';
+        }
+        document.getElementById('emergencyDetailsInput').value = '';
+        modal.classList.add('active');
+    }
+
+    function closeEmergencyModal(event) {
+        if (!event || event.target.id === 'emergencyModal' || event.target.classList.contains('btn-close-modal')) {
+            document.getElementById('emergencyModal').classList.remove('active');
+        }
+    }
+
+// 글로벌 저장 변수 추가 (현재 활성화된 비상 정보 저장)
+let activeEmergencyData = null;
+
+async function submitEmergencyAlert() {
+    const loc = document.getElementById('emergencyLocationInput').value.trim();
+    const details = document.getElementById('emergencyDetailsInput').value.trim();
+
+    if (!details) {
+        alert('비상 상황 내용을 입력해 주세요.');
+        return;
+    }
+
+    const locationVal = loc || selectedEnvValue || '미지정 장소';
+
+    const payload = {
+        action: 'emergency',
+        seq: currentWorkerSeq || '미지정',
+        name: currentWorkerName || '작업자',
+        location: locationVal,
+        details: details
+    };
+
+    try {
+        await fetch(GOOGLE_SHEET_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+
+        closeEmergencyModal();
+        checkEmergencyAlerts(); 
+
+        // 🟢 비상상황 전송 직후 Gemini API 응급조치 절차 창 즉시 출력
+        fetchEmergencyFirstAidAndShowModal(locationVal, details);
+    } catch (error) {
+        console.error('비상 전송 오류:', error);
+        alert('비상 알림 전송 중 네트워크 오류가 발생했습니다.');
+    }
+}
+
+async function checkEmergencyAlerts() {
+    try {
+        // 🟢 [최적화] 3초 타임아웃 컨트롤러 추가 (지연 방지)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch(`${GOOGLE_SHEET_SERVER_URL}?action=getEmergency&t=${new Date().getTime()}`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.emergency) {
+                const em = data.emergency;
+                currentEmergencyRowIndex = em.rowIndex;
+                activeEmergencyData = em; // 현재 비상상황 데이터를 글로벌에 저장
+
+                const timeStr = em.time ? ` (${em.time})` : '';
+                const bannerMsg = `🚨 [비상 발생] ${em.name || '작업자'}(${em.seq || '미지정'}) | 장소: ${em.location || '미지정'} | 내용: ${em.details || '내용없음'}${timeStr} (클릭시 응급조치 절차)`;
+                
+                showEmergencyBanner(bannerMsg);
+            } else {
+                activeEmergencyData = null;
+                currentEmergencyRowIndex = null;
+                lastEmergencyTime = "";
+                closeEmergencyBannerUIOnly();
+            }
+        }
+    } catch (err) {
+        // 타임아웃 발생 시 콘솔 경고만 남기고 메인 화면 동작 유지
+        console.warn("비상 상황 확인 타임아웃/실패:", err.name === 'AbortError' ? '요청 시간 초과' : err);
+    }
+}
+
+
+
+// 🟢 알림 배너 클릭 시 저장된 비상 내용을 토대로 응급조치 창 열기
+function openEmergencyFirstAidFromBanner() {
+    if (activeEmergencyData) {
+        // 구글시트 비상탭 I열(actionDetails) 또는 F열(firstAid)에 이미 기록된 내용이 있는지 체크
+        const existingGuide = (activeEmergencyData.actionDetails && activeEmergencyData.actionDetails.trim() !== "") 
+            ? activeEmergencyData.actionDetails 
+            : (activeEmergencyData.firstAid && activeEmergencyData.firstAid.trim() !== "" ? activeEmergencyData.firstAid : "");
+
+        if (existingGuide) {
+            // 🟢 I열(또는 F열)에 저장된 기존 응급조치 가이드/내용을 불러와서 모달에 출력
+            showFirstAidModalFromSheet(activeEmergencyData.location, activeEmergencyData.details, existingGuide);
+        } else {
+            // 기록된 내용이 없는 최초 1회에 한해 Gemini API로 가이드 생성 후 구글시트에 저장
+            fetchEmergencyFirstAidAndShowModal(activeEmergencyData.location, activeEmergencyData.details, activeEmergencyData.rowIndex);
+        }
+    } else {
+        alert("현재 등록된 비상 상황 정보가 없습니다.");
+    }
+}
+
+
+
+// 🟢 Gemini API 연동 응급조치 절차 창 생성 및 출력 함수
+// 구글시트에 기록된 F열 응급조치 가이드를 화면에 출력하는 함수 추가
+// index.html (조치사항 입력 버튼 및 구글시트 I열 전송 처리 코드)
+
+// 1. 비상 응급조치 가이드 하단에 조치사항 입력 버튼 출력
+// 1. 비상 응급조치 가이드 출력 (구글 시트 저장 데이터 기반)
+function showFirstAidModalFromSheet(location, details, firstAidText) {
+    const modalTitle = document.getElementById('modalDetailTitle');
+    const modalBody = document.getElementById('modalDetailBody');
+    const confirmBtn = document.getElementById('btnModalConfirm');
+    const modal = document.getElementById('detailInfoModal');
+
+    modalTitle.innerText = `🚨 [비상 응급조치 가이드]`;
+    const targetRow = activeEmergencyData ? activeEmergencyData.rowIndex : null;
+
+    modalBody.innerHTML = `
+        <div style="background-color:#ffeeee; border:1px solid var(--accent-red); padding:12px; border-radius:12px; margin-bottom:12px; color:var(--accent-red); font-weight:700;">
+            📍 발생 위치: ${location}<br>
+            📢 비상 내용: ${details}
+        </div>
+        <div style="font-size:0.88rem; line-height:1.6; margin-bottom:14px;">
+            ${firstAidText}
+        </div>
+        <!-- 최하단 조치사항 입력칸 추가 -->
+        <div class="form-group" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:12px;">
+            <label class="form-label" style="color:var(--accent-blue); font-weight:700;">📝 현장 조치사항 입력</label>
+            <textarea id="actionDetailsInput" class="auth-textarea" placeholder="현장에서 실시한 조치 내용을 입력하세요 (예: 119 신고 완료, 소화기 사용, 작업자 대피 등)"></textarea>
+        </div>
+    `;
+
+    confirmBtn.innerText = "조치사항 제출 (텔레그램 발송)";
+    confirmBtn.onclick = function() { submitFirstAidAction(targetRow); };
+    confirmBtn.style.display = 'block'; // 🟢 캐시 데이터 로드 시 버튼 노출 보장
+
+    modal.classList.add('active');
+}
+
+// 2. 조치사항 입력 상자(Modal/Prompt) 띄우기 및 구글시트 I열 전송 함수
+async function submitFirstAidAction(targetRow) {
+    const inputEl = document.getElementById('actionDetailsInput');
+    const actionDetails = inputEl ? inputEl.value.trim() : "";
+
+    if (!actionDetails) {
+        alert("조치사항을 입력해 주세요.");
+        return;
+    }
+
+    if (!targetRow) {
+        alert("비상 상황 정보가 존재하지 않습니다.");
+        return;
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEET_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'saveFirstAid',
+                rowIndex: targetRow,
+                actionDetails: actionDetails,
+                actionUserSeq: currentWorkerSeq || '미지정',
+                actionUserName: currentWorkerName || '작업자'
+            })
+        });
+
+        const data = await response.json();
+        if (data.result === 'success') {
+            alert('조치사항이 성공적으로 저장되었으며, 텔레그램으로 발송되었습니다.');
+            closeDetailModal();
+        } else {
+            alert('등록 실패: ' + (data.message || '서버 오류 발생'));
+        }
+    } catch (err) {
+        console.error("조치사항 저장 오류:", err);
+        alert('전송 중 오류가 발생했습니다.');
+    }
+}
+
+// Gemini API 연동 후 응급조치 가이드 생성 및 구글시트 비상탭 F열에 저장하는 함수
+async function fetchEmergencyFirstAidAndShowModal(location, details, rowIndex) {
+    const modalTitle = document.getElementById('modalDetailTitle');
+    const modalBody = document.getElementById('modalDetailBody');
+    const confirmBtn = document.getElementById('btnModalConfirm');
+    const modal = document.getElementById('detailInfoModal');
+
+    modalTitle.innerText = `🚨 [비상 응급조치 가이드]`;
+    modalBody.innerHTML = `
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <span>Gemini AI가 비상 상황 응급조치 절차를 분석 및 생성 중입니다...</span>
+        </div>`;
+
+    // 🟢 [수정 및 추가] 로딩 중 확인 버튼 숨기기 및 로딩 모달창 즉시 표시
+    confirmBtn.style.display = 'none';
+    modal.classList.add('active');
+
+    const promptText = `
+작업 현장에서 긴급 비상 상황이 발생했습니다.
+발생 위치: ${location}
+비상 내용: ${details}
+
+상기 발생위치와 비상 내용을 토대로, 현장 작업자가 즉시 시행해야 할 필수 응급조치 및 대피/초기 대응 절차를 3~4개 단계로 명확하고 간결하게 한국어로 작성해 주세요. 
+HTML 형식 태그(<b>, <p>, <ul>, <li> 등)를 사용하여 보기 쉽게 정리해 주세요.
+    `;
+
+    try {
+        const response = await fetch(getGeminiApiUrl(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }] }]
+            })
+        });
+
+        const data = await response.json();
+        const geminiResponseText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "응급조치 정보를 생성하지 못했습니다.";
+        const targetRow = rowIndex || (activeEmergencyData ? activeEmergencyData.rowIndex : null);
+
+        modalBody.innerHTML = `
+            <div style="background-color:#ffeeee; border:1px solid var(--accent-red); padding:12px; border-radius:12px; margin-bottom:12px; color:var(--accent-red); font-weight:700;">
+                📍 발생 위치: ${location}<br>
+                📢 비상 내용: ${details}
+            </div>
+            <div style="font-size:0.88rem; line-height:1.6; margin-bottom:14px;">
+                ${geminiResponseText}
+            </div>
+            <!-- 최하단 조치사항 입력칸 추가 -->
+            <div class="form-group" style="margin-top:16px; border-top:1px solid var(--border-color); padding-top:12px;">
+                <label class="form-label" style="color:var(--accent-blue); font-weight:700;">📝 현장 조치사항 입력</label>
+                <textarea id="actionDetailsInput" class="auth-textarea" placeholder="현장에서 실시한 조치 내용을 입력하세요 (예: 119 신고 완료, 소화기 사용, 작업자 대피 등)"></textarea>
+            </div>
+        `;
+
+        confirmBtn.innerText = "조치사항 제출 (텔레그램 발송)";
+        confirmBtn.onclick = function() { submitFirstAidAction(targetRow); };
+
+        // 🟢 [추가] 가이드 생성이 완려된 후 버튼 보이기
+        confirmBtn.style.display = 'block';
+
+// 생성된 응급조치 가이드를 구글 시트 F열 및 I열에 함께 저장
+        if (targetRow) {
+            fetch(GOOGLE_SHEET_SERVER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'saveFirstAid',
+                    rowIndex: targetRow,
+                    firstAid: geminiResponseText,
+                    actionDetails: geminiResponseText // 🟢 I열(9번째 열)에도 생성된 가이드 내용 즉시 기록
+                })
+            }).catch(err => console.error("응급조치 구글시트 저장 오류:", err));
+        }
+
+
+    } catch (e) {
+        console.error(e);
+        modalBody.innerHTML = `
+            <div style="color:var(--accent-red); font-weight:700;">
+                응급조치 절차를 생성하는 중 오류가 발생했습니다.<br>
+                즉시 안전한 구역으로 대피 후 현장 관리자 및 119에 신고하십시오.
+            </div>
+        `;
+        // 🟢 [추가] 에러 발생 시 버튼을 숨긴 상태 유지
+        confirmBtn.style.display = 'none';
+    }
+}
+
+function showEmergencyBanner(msg) {
+    const banner = document.getElementById('emergencyBanner');
+    const bannerText = document.getElementById('emergencyBannerText');
+    bannerText.innerText = msg;
+    banner.style.display = 'flex';
+}
+
+// 화면 UI상에서만 임시로 배너 닫기
+function closeEmergencyBannerUIOnly() {
+    document.getElementById('emergencyBanner').style.display = 'none';
+}
+
+// (X) 버튼 클릭 시 실행되는 함수
+async function closeEmergencyBanner() {
+    // 1. 단순 화면 배너 닫기
+    closeEmergencyBannerUIOnly();
+
+    // 2. 관리자(admin) 계정일 경우 구글 시트 H열을 '비활성화'로 변경 처리
+    if (isAdminUser) {
+        try {
+            await fetch(GOOGLE_SHEET_SERVER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'disableEmergency',
+                    rowIndex: currentEmergencyRowIndex
+                })
+            });
+            
+            lastEmergencyTime = ""; // 비상 상태 초기화
+            currentEmergencyRowIndex = null;
+            console.log("구글 시트 비상 상황이 비활성화 처리되었습니다.");
+        } catch (error) {
+            console.error("비상 비활성화 연동 오류:", error);
+        }
+    }
+}
+
+    function toggleEnvDropdown() {
+        document.getElementById('envSelectBtn').classList.toggle('open');
+        document.getElementById('envOptionsMenu').classList.toggle('active');
+    }
+
+function selectEnvOption(envName) {
+        const customBox = document.getElementById('customEnvInputBox');
+        const customInput = document.getElementById('customEnvInput');
+
+        if (envName === '직접 입력') {
+            customBox.style.display = 'block';
+            const customVal = customInput.value.trim();
+            const newEnvValue = customVal !== '' ? customVal : '직접 입력';
+            
+            if (selectedEnvValue !== newEnvValue) {
+                selectedEnvValue = newEnvValue;
+                aiResultCache = {};
+                confirmedCardsSet.clear();
+                resetSignState();
+            }
+
+            const btnText = document.getElementById('selectedEnvText');
+            btnText.innerText = `📍 ${newEnvValue}`;
+            btnText.style.color = "var(--accent-blue)";
+            btnText.style.fontWeight = "700";
+            customInput.focus();
+        } else {
+            customBox.style.display = 'none';
+            if (selectedEnvValue !== envName) {
+                selectedEnvValue = envName;
+                aiResultCache = {};
+                confirmedCardsSet.clear();
+                resetSignState();
+            }
+            const btnText = document.getElementById('selectedEnvText');
+            btnText.innerText = `📍 ${envName}`;
+            btnText.style.color = "var(--accent-blue)";
+            btnText.style.fontWeight = "700";
+        }
+
+        document.getElementById('envSelectBtn').classList.remove('open');
+        document.getElementById('envOptionsMenu').classList.remove('active');
+
+        renderFooterButtons();
+    }
+
+// 직접 입력 텍스트 변경 시 동시간 처리 핸들러
+    function handleCustomEnvInput(val) {
+        const trimmed = val.trim();
+        const finalValue = trimmed !== '' ? trimmed : '직접 입력';
+        
+        if (selectedEnvValue !== finalValue) {
+            selectedEnvValue = finalValue;
+            aiResultCache = {};
+            confirmedCardsSet.clear();
+            resetSignState();
+        }
+
+        const btnText = document.getElementById('selectedEnvText');
+        btnText.innerText = `📍 ${finalValue}`;
+        
+        renderFooterButtons();
+    }
+
+
+    function toggleExampleSection(btn) {
+        document.getElementById('workSection').classList.toggle('active');
+        btn.classList.toggle('active');
+    }
+
+    function renderExampleGrid() {
+        const grid = document.getElementById('exampleWorkGrid');
+        if (exampleList.length === 0) {
+            grid.innerHTML = `<div style="grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-sub); text-align: center; padding: 12px 0;">등록된 즐겨찾기 항목이 없습니다.</div>`;
+            return;
+        }
+
+        grid.innerHTML = exampleList.map(itemText => {
+            const isChecked = registeredTasks.includes(itemText);
+            return `
+                <label class="work-item">
+                    <input type="checkbox" value="${itemText}" ${isChecked ? 'checked' : ''} onchange="syncWorkTypeTask(this)">
+                    <span>${itemText}</span>
+                </label>
+            `;
+        }).join('');
+    }
+
+    function deleteCheckedExamples() {
+        const checkedInputs = document.querySelectorAll('#exampleWorkGrid input[type="checkbox"]:checked');
+        if (checkedInputs.length === 0) {
+            alert("삭제할 항목을 먼저 체크해 주세요.");
+            return;
+        }
+
+        const targetsToRemove = Array.from(checkedInputs).map(input => input.value);
+        exampleList = exampleList.filter(item => !targetsToRemove.includes(item));
+        registeredTasks = registeredTasks.filter(item => !targetsToRemove.includes(item));
+
+        resetSignState();
+        renderExampleGrid();
+        renderTaskList();
+    }
+
+    function openAddDialogModal() {
+        const modal = document.getElementById('addDialogModal');
+        const grid = document.getElementById('modalPresetGrid');
+
+        grid.innerHTML = PRESET_EXAMPLES.map(itemText => {
+            const isAlreadyAdded = exampleList.includes(itemText);
+            return `
+                <label class="work-item">
+                    <input type="checkbox" value="${itemText}" ${isAlreadyAdded ? 'checked' : ''}>
+                    <span>${itemText}</span>
+                </label>
+            `;
+        }).join('');
+
+        modal.classList.add('active');
+    }
+
+    function closeAddDialogModal(event) {
+        if (!event || event.target.id === 'addDialogModal' || event.target.classList.contains('btn-close-modal')) {
+            document.getElementById('addDialogModal').classList.remove('active');
+        }
+    }
+
+    function confirmAddDialogSelection() {
+        const selectedCbs = document.querySelectorAll('#modalPresetGrid input[type="checkbox"]:checked');
+        const newExamples = [];
+        selectedCbs.forEach(cb => newExamples.push(cb.value));
+
+        exampleList = newExamples;
+        renderExampleGrid();
+        closeAddDialogModal();
+    }
+
+    function updateCurrentDate() {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const displaySeq = currentWorkerSeq || '--';
+        const displayName = currentWorkerName || '접속 정보 없음';
+        document.getElementById('currentDateDisplay').innerText = `${dateStr} | ${displaySeq} ${displayName}`;
+    }
+
+    // 주요 현장 기상 지역 목록 및 Open-Meteo 위경도 정보
+    const LOCATION_PRESETS = [
+        { name: "창원시", lat: 35.22, lon: 128.68 },
+        { name: "서울특별시", lat: 37.56, lon: 126.97 },
+        { name: "부산광역시", lat: 35.17, lon: 129.07 },
+        { name: "대구광역시", lat: 35.87, lon: 128.60 },
+        { name: "인천광역시", lat: 37.45, lon: 126.70 },
+        { name: "광주광역시", lat: 35.15, lon: 126.85 },
+        { name: "대전광역시", lat: 36.35, lon: 127.38 },
+        { name: "울산광역시", lat: 35.53, lon: 129.31 }
+    ];
+
+    let currentLocation = LOCATION_PRESETS[0]; // 기본값: 창원시
+
+    async function fetchRealtimeWeather(loc) {
+        const targetLoc = loc || currentLocation;
+        document.getElementById('weatherLocation').innerText = targetLoc.name;
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${targetLoc.lat}&longitude=${targetLoc.lon}&current_weather=true`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            const data = await res.json();
+            
+            if (data && data.current_weather) {
+                const temp = data.current_weather.temperature;
+                document.getElementById('weatherTemp').innerText = `${temp}℃`;
+                
+                // 온도가 33도 이상인 경우 무더위 경고 바꿈
+                const badgeEl = document.getElementById('weatherBadge');
+                if (temp >= 33) {
+                    badgeEl.innerText = "🔴 폭염주의";
+                    badgeEl.style.background = "#ffeeee";
+                    badgeEl.style.color = "var(--accent-red)";
+                } else {
+                    badgeEl.innerText = "🟢 양호";
+                    badgeEl.style.background = "var(--accent-blue-light)";
+                    badgeEl.style.color = "var(--accent-blue)";
+                }
+            }
+        } catch (e) {
+            console.warn("기상 정보 수신 실패:", e);
+            document.getElementById('weatherTemp').innerText = '24.5℃';
+        }
+    }
+
+    function openWeatherLocationModal() {
+        const modal = document.getElementById('weatherLocationModal');
+        const grid = document.getElementById('weatherLocationGrid');
+
+        grid.innerHTML = LOCATION_PRESETS.map(loc => `
+            <button type="button" class="weather-location-btn" onclick="selectWeatherLocation('${loc.name}')">
+                <span>📍 ${loc.name}</span>
+                <span style="font-size:0.72rem; color:var(--text-sub);">${loc.name === currentLocation.name ? '선택됨' : '선택'}</span>
+            </button>
+        `).join('');
+
+        modal.classList.add('active');
+    }
+
+    function closeWeatherLocationModal(event) {
+        if (!event || event.target.id === 'weatherLocationModal' || event.target.classList.contains('btn-close-modal')) {
+            document.getElementById('weatherLocationModal').classList.remove('active');
+        }
+    }
+
+    function selectWeatherLocation(locationName) {
+        const found = LOCATION_PRESETS.find(l => l.name === locationName);
+        if (found) {
+            currentLocation = found;
+            fetchRealtimeWeather(currentLocation);
+        }
+        closeWeatherLocationModal();
+    }
+
+
+    function syncWorkTypeTask(cb) {
+        const val = cb.value;
+        if (cb.checked) {
+            if (!registeredTasks.includes(val)) registeredTasks.push(val);
+        } else {
+            registeredTasks = registeredTasks.filter(t => t !== val);
+        }
+        resetSignState();
+        renderTaskList();
+    }
+
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        const val = input.value.trim();
+        if (val !== '') {
+            if (!registeredTasks.includes(val)) registeredTasks.push(val);
+            input.value = '';
+            resetSignState();
+            renderTaskList();
+            renderExampleGrid();
+        }
+    }
+
+    function handleTaskEnter(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            addTask();
+        }
+    }
+
+    function renderTaskList() {
+        const card = document.getElementById('taskListCard');
+        const listContainer = document.getElementById('taskList');
+        const countEl = document.getElementById('taskCount');
+
+        if (registeredTasks.length > 0) {
+            card.style.display = 'block';
+            countEl.innerText = `${registeredTasks.length}건`;
+            listContainer.innerHTML = registeredTasks.map((task, index) => `
+                <div class="task-item-badge">
+                    <span>📌 ${task}</span>
+                    <span class="btn-del" onclick="deleteTask(${index})">✕</span>
+                </div>
+            `).join('');
+        } else {
+            card.style.display = 'none';
+        }
+
+        renderFooterButtons();
+    }
+
+    function deleteTask(index) {
+        registeredTasks.splice(index, 1);
+        resetSignState();
+        renderExampleGrid();
+        if (currentSubPageIndex >= registeredTasks.length) {
+            currentSubPageIndex = Math.max(0, registeredTasks.length - 1);
+        }
+        renderTaskList();
+    }
+
+    function isReadyForNextPage() {
+        return selectedEnvValue !== '작업 장소를 선택하세요' && registeredTasks.length > 0;
+    }
+
+    function checkAllItemsConfirmed() {
+        if (registeredTasks.length === 0) return false;
+
+        for (let i = 0; i < registeredTasks.length; i++) {
+            const taskText = registeredTasks[i];
+            const cacheKey = `${selectedEnvValue}_${taskText}`;
+            const aiData = aiResultCache[cacheKey];
+
+            if (!aiData || aiData.isInvalidTask) return false;
+
+            const aiRiskCardId = `card_ai_risk_${taskText}`;
+            if (!confirmedCardsSet.has(aiRiskCardId)) return false;
+
+            const caseCardId = `card_accident_case_${taskText}`;
+            if (!confirmedCardsSet.has(caseCardId)) return false;
+
+            const ppeKeys = (aiData.recommendedPPE && aiData.recommendedPPE.length > 0) ? aiData.recommendedPPE : ['helmet', 'safetyShoes'];
+            for (let idx = 0; idx < ppeKeys.length; idx++) {
+                const key = ppeKeys[idx];
+                const ppeCardId = `card_ppe_${taskText}_${key}_${idx}`;
+                if (!confirmedCardsSet.has(ppeCardId)) return false;
+            }
+        }
+
+        return true;
+    }
+
+    function switchPage(pageNum) {
+        if (pageNum === 2 && !isReadyForNextPage()) return;
+        currentPage = pageNum;
+
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page' + pageNum).classList.add('active');
+
+        document.querySelectorAll('.tab-menu .tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tabBtn' + pageNum).classList.add('active');
+
+        if (pageNum === 2) {
+            if (currentSubPageIndex >= registeredTasks.length) {
+                currentSubPageIndex = 0;
+            }
+            fetchAndRenderBatchAI();
+        }
+        renderFooterButtons();
+    }
+
+async function handleWorkerSubmitSign() {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    const workerIndex = workerAccounts.findIndex(acc => String(acc.seq) === String(currentWorkerSeq));
+    if (workerIndex !== -1) {
+        workerAccounts[workerIndex].signed = true;
+        workerAccounts[workerIndex].signTime = `${dateStr} ${timeStr}`;
+        if (!workerAccounts[workerIndex].dateHistory) {
+            workerAccounts[workerIndex].dateHistory = {};
+        }
+        workerAccounts[workerIndex].dateHistory[dateStr] = {
+            signed: true,
+            signTime: `${dateStr} ${timeStr}`,
+            tasks: registeredTasks.join(', '),
+            location: selectedEnvValue
+        };
+        saveWorkerAccounts();
+    }
+
+    const payload = {
+        action: 'submitSign',
+        seq: currentWorkerSeq,
+        name: currentWorkerName,
+        date: dateStr,
+        time: timeStr,
+        location: selectedEnvValue,
+        tasks: registeredTasks.join(', ')
+    };
+
+    const submitBtn = document.getElementById('btnSubmitSign');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = '서명 전송 중...';
+    }
+
+    try {
+        await fetch(GOOGLE_SHEET_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+
+        alert('서명이 성공적으로 전송 완료되었습니다.');
+    } catch (error) {
+        console.error('서버 전송 오류:', error);
+        alert('서버 전송 중 네트워크 오류가 발생했습니다.');
+    }
+
+    renderFooterButtons();
+}
+
+
+    function renderFooterButtons() {
+        const footer = document.getElementById('footerNav');
+        const canProceed = isReadyForNextPage();
+        document.getElementById('tabBtn2').disabled = !canProceed;
+
+        if (currentPage === 1) {
+            footer.innerHTML = `<button class="btn-nav" onclick="switchPage(2)" ${canProceed ? '' : 'disabled'}>다음: AI 위험분석 & 안전 지침 →</button>`;
+        } else {
+            const isAllConfirmed = checkAllItemsConfirmed();
+            const currentAcc = workerAccounts.find(acc => String(acc.seq) === String(currentWorkerSeq));
+            const isAlreadySigned = currentAcc ? currentAcc.signed : false;
+
+            if (isAlreadySigned) {
+                footer.innerHTML = `
+                    <button class="btn-nav secondary" onclick="switchPage(1)">← 이전 (1)</button>
+                    <button class="btn-nav btn-submit" style="background-color: #8b95a1; cursor: default;" disabled>✅ 서명 완료됨</button>
+                `;
+            } else {
+                footer.innerHTML = `
+                    <button class="btn-nav secondary" onclick="switchPage(1)">← 이전 (1)</button>
+                    <button class="btn-nav btn-submit" id="btnSubmitSign" onclick="handleWorkerSubmitSign()" ${isAllConfirmed ? '' : 'disabled'}>작업 등록 및 서명</button>
+                `;
+            }
+        }
+    }
+
+    function prevSubPage() {
+        if (currentSubPageIndex > 0) {
+            currentSubPageIndex--;
+            renderCurrentTaskView();
+        }
+    }
+
+    function nextSubPage() {
+        if (currentSubPageIndex < registeredTasks.length - 1) {
+            currentSubPageIndex++;
+            renderCurrentTaskView();
+        }
+    }
+
+    async function fetchAndRenderBatchAI() {
+        const uncachedTasks = registeredTasks.filter(t => !aiResultCache[`${selectedEnvValue}_${t}`]);
+
+        if (uncachedTasks.length > 0) {
+            showLoadingState();
+
+            const systemPrompt = `
+You are an expert South Korean Industrial & Workplace Safety Specialist analyzing tasks based on KOSHA guidelines.
+
+LOCATION: "${selectedEnvValue}"
+TASKS LIST: ${JSON.stringify(uncachedTasks)}
+
+INSTRUCTIONS:
+1. Evaluate EACH task in the TASKS LIST independently.
+2. Accept standard, general, or common workplace tasks generously. Mark 'isInvalidTask' as true ONLY IF the task is completely nonsensical, spam, or totally unrelated to physical or office work activities.
+3. Language MUST be Korean.
+
+Return a strictly valid JSON OBJECT where keys are EXACTLY the original task names from the input list, and values contain:
+{
+  "isInvalidTask": boolean,
+  "invalidReason": "String if invalid, else empty string",
+  "correctedText": "Standard Korean task title",
+  "isDanger": boolean,
+  "summary": "Brief risk summary (1 concise sentence)",
+  "safetyGuide": "HTML String with 2-3 step-by-step essential safety rules (use <b>, <br>)",
+  "recommendedPPE": Array of 2-4 keys chosen ONLY from ["helmet", "goggles", "faceShield", "earProtection", "respirator", "gloves", "safetyShoes"],
+  "accidentCase": {
+    "title": "Relevant accident title",
+    "date": "Category / Year",
+    "content": "HTML String with brief cause and prevention measures"
+  }
+}
+`;
+
+            let attempt = 0;
+            const maxRetries = 3;
+            let success = false;
+
+            while (attempt < maxRetries && !success) {
+                attempt++;
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+                    const response = await fetch(getGeminiApiUrl(), {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        signal: controller.signal,
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: systemPrompt }] }],
+                            generationConfig: { 
+                                temperature: 0.2,
+                                response_mime_type: "application/json" 
+                            }
+                        })
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        let resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+                        // JSON 파싱 전 마크다운 태그 정제 (Markdown Clean)
+                        resultText = resultText.replace(/```json/gi, "").replace(/```/g, "").trim();
+
+                        const parsedBatch = JSON.parse(resultText);
+
+                        uncachedTasks.forEach(task => {
+                            const taskResult = parsedBatch[task] || {
+                                isInvalidTask: false,
+                                correctedText: task,
+                                isDanger: false,
+                                summary: "일반 작업 안전수칙을 준수하세요.",
+                                safetyGuide: "<b>기본 안전 수칙</b><br>1. 작업 전 주변 환경 점검<br>2. 적절한 복장 및 기본 보호구 착용",
+                                recommendedPPE: ["helmet", "safetyShoes"],
+                                accidentCase: {
+                                    title: "일반 작업 주의사항",
+                                    date: "안전수칙",
+                                    content: "작업 중 주변 환경을 확인하고 표준 작업 절차를 준수하세요."
+                                }
+                            };
+                            aiResultCache[`${selectedEnvValue}_${task}`] = taskResult;
+                        });
+
+                        success = true;
+                    } else if (response.status === 503 && attempt < maxRetries) {
+                        // 503 에러 발생 시 대기 후 재시도
+                        await new Promise(res => setTimeout(res, 1500 * attempt));
+                    } else {
+                        throw new Error(`HTTP 에러: ${response.status}`);
+                    }
+                } catch (e) {
+                    if (attempt >= maxRetries) {
+                        uncachedTasks.forEach(task => {
+                            aiResultCache[`${selectedEnvValue}_${task}`] = {
+                                isInvalidTask: true,
+                                invalidReason: `분석 실패 (${e.message || '네트워크 연결을 확인하세요'})`
+                            };
+                        });
+                    } else {
+                        await new Promise(res => setTimeout(res, 1500 * attempt));
+                    }
+                }
+            }
+        }
+
+        renderCurrentTaskView();
+    }
+
+function showLoadingState() {
+        // 상단 이전/다음 탭 바 로딩 상태 표시
+        const integratedBar = document.getElementById('integratedTaskBar');
+        const btnPrev = document.getElementById('btnSubPrev');
+        const btnNext = document.getElementById('btnSubNext');
+        const indicator = document.getElementById('subPageIndicator');
+        const taskTextSpan = document.getElementById('activeTaskTextSpan');
+
+        if (integratedBar) {
+            integratedBar.style.display = 'flex';
+            if (btnPrev) btnPrev.disabled = true;
+            if (btnNext) btnNext.disabled = true;
+            if (indicator) indicator.innerText = ' ';
+            if (taskTextSpan) taskTextSpan.innerText = '불러오는 중..';
+        }
+
+        document.getElementById('aiAnalysisBox').innerHTML = `<div class="loading-box"><div class="spinner"></div><span>AI 분석 중...</span></div>`;
+        document.getElementById('ppeDetailList').innerHTML = `<div class="loading-box" style="grid-column: 1 / -1;"><div class="spinner"></div><span>보호구 구성 중...</span></div>`;
+        document.getElementById('accidentCasesBox').innerHTML = `<div class="loading-box"><div class="spinner"></div><span>산재 사례 수집 중...</span></div>`;
+    }
+
+
+function renderCurrentTaskView() {
+        const aiBox = document.getElementById('aiAnalysisBox');
+        const ppeListContainer = document.getElementById('ppeDetailList');
+        const casesBox = document.getElementById('accidentCasesBox');
+        const ppeCard = document.getElementById('ppeCard');
+        const accidentCard = document.getElementById('accidentCard');
+        const integratedBar = document.getElementById('integratedTaskBar');
+        const indicator = document.getElementById('subPageIndicator');
+        const taskTextSpan = document.getElementById('activeTaskTextSpan');
+        const btnPrev = document.getElementById('btnSubPrev');
+        const btnNext = document.getElementById('btnSubNext');
+
+        if (registeredTasks.length === 0) return;
+
+        const activeTaskText = registeredTasks[currentSubPageIndex] || registeredTasks[0];
+        integratedBar.style.display = 'flex';
+
+        const cacheKey = `${selectedEnvValue}_${activeTaskText}`;
+        const aiResult = aiResultCache[cacheKey];
+
+        if (!aiResult) {
+            showLoadingState();
+            return;
+        }
+
+        // 로딩 완료 후 이전/다음 버튼 및 인디케이터 상태 복구
+        indicator.innerText = `${currentSubPageIndex + 1}/${registeredTasks.length}`;
+        taskTextSpan.innerText = activeTaskText;
+        if (btnPrev) btnPrev.disabled = (currentSubPageIndex === 0);
+        if (btnNext) btnNext.disabled = (currentSubPageIndex >= registeredTasks.length - 1);
+
+
+        ppeCard.style.display = 'block';
+        accidentCard.style.display = 'block';
+
+        if (aiResult.isInvalidTask) {
+            aiBox.innerHTML = `
+                <div class="invalid-task-box">
+                    <h3>⚠️ 분석 불가능</h3>
+                    <div>${aiResult.invalidReason}</div>
+                </div>`;
+            ppeCard.style.display = 'none';
+            accidentCard.style.display = 'none';
+            renderFooterButtons();
+            return;
+        }
+
+        const aiRiskCardId = `card_ai_risk_${activeTaskText}`;
+        const isAiRiskConfirmed = confirmedCardsSet.has(aiRiskCardId);
+
+aiBox.innerHTML = `
+    <div id="${aiRiskCardId}" 
+         data-risk-id="risk_${activeTaskText}" 
+         class="status-card ${aiResult.isDanger ? 'danger-card' : ''} ${isAiRiskConfirmed ? 'confirmed' : ''}" 
+         data-title="AI 정밀 위험 분석 (${aiResult.correctedText})" 
+         data-content="${encodeURIComponent(aiResult.safetyGuide)}" 
+         onclick="handleModalClick(this)">
+        <div class="ai-compact-text">${aiResult.summary}</div>
+        <span class="btn-click-more">🔍</span>
+    </div>`;
+
+
+        renderDynamicPPEByKeys(activeTaskText, aiResult.recommendedPPE);
+
+        const caseCardId = `card_accident_case_${activeTaskText}`;
+        const isCaseConfirmed = confirmedCardsSet.has(caseCardId);
+        const caseData = aiResult.accidentCase;
+
+        casesBox.innerHTML = `
+            <div id="${caseCardId}" class="status-card danger-card ${isCaseConfirmed ? 'confirmed' : ''}" 
+                 data-title="${caseData.title}" 
+                 data-content="${encodeURIComponent(caseData.content)}" 
+                 onclick="handleModalClick(this)">
+                <div class="accident-card-content">
+                    <span class="accident-title-text">⚠️ ${caseData.title}</span>
+                    <span class="accident-date-text">${caseData.date}</span>
+                </div>
+                <span class="btn-click-more">🔍</span>
+            </div>`;
+
+        renderFooterButtons();
+    }
+
+function renderDynamicPPEByKeys(activeTaskText, recommendedKeys = []) {
+        const ppeListContainer = document.getElementById('ppeDetailList');
+        const keys = (recommendedKeys && recommendedKeys.length > 0) ? recommendedKeys : ['helmet', 'safetyShoes'];
+
+        ppeListContainer.innerHTML = keys.map((key, idx) => {
+            const ppe = PPE_ICON_DATABASE[key] || PPE_ICON_DATABASE['helmet'];
+            const cardId = `card_ppe_${activeTaskText}_${key}_${idx}`;
+            const isConfirmed = confirmedCardsSet.has(cardId);
+
+            return `
+                <div id="${cardId}" class="ppe-compact-card ${isConfirmed ? 'confirmed' : ''}"
+                     data-title="[보호구] ${ppe.title}"
+                     data-content="${encodeURIComponent(`<b>분류:</b> ${ppe.category}<br><b>관련 법령:</b> ${ppe.lawRef}<br><br>작업 시작 전 해당 보호구의 착용 상태 및 파손 여부를 반드시 점검하십시오.`)}"
+                     onclick="handleModalClick(this)">
+                    <div class="ppe-left-group">
+                        <div class="ppe-compact-icon">${ppe.svg}</div>
+                        <span class="ppe-compact-title">${ppe.title}</span>
+                    </div>
+                    <span class="btn-click-more">🔍</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+
+ function handleModalClick(el) {
+        activeTargetElementId = el.id;
+        const title = el.getAttribute('data-title');
+        const content = decodeURIComponent(el.getAttribute('data-content'));
+
+        const modalTitle = document.getElementById('modalDetailTitle');
+        const modalBody = document.getElementById('modalDetailBody');
+        const confirmBtn = document.getElementById('btnModalConfirm');
+
+        modalTitle.innerText = title;
+        modalBody.innerHTML = content;
+        confirmBtn.innerText = "확인 (내용 숙지완료)";
+        confirmBtn.onclick = confirmModalAndActivate;
+
+        document.getElementById('detailInfoModal').classList.add('active');
+    }
+
+
+    function openDetailModal(title, contentHtml, targetId) {
+    // 선택된 타겟 카드의 ID를 전달받아 글로벌 변수에 보장
+    activeTargetElementId = targetId;
+    
+    document.getElementById('modalDetailTitle').innerText = title;
+    document.getElementById('modalDetailBody').innerHTML = contentHtml;
+    
+    const confirmBtn = document.getElementById('btnModalConfirm');
+    confirmBtn.innerText = "확인 (내용 숙지완료)";
+    
+    // 확인 버튼 클릭 시 confirmModalAndActivate()가 확실히 호출되도록 바인딩
+    confirmBtn.onclick = function() {
+        confirmModalAndActivate();
+    };
+    
+    document.getElementById('detailInfoModal').classList.add('active');
+}
+
+function confirmModalAndActivate() {
+        if (activeTargetElementId) {
+            confirmedCardsSet.add(activeTargetElementId);
+            const targetEl = document.getElementById(activeTargetElementId);
+            if (targetEl) {
+                targetEl.classList.add('confirmed');
+            }
+        }
+        closeDetailModal();
+        renderFooterButtons();
+    }
+
+    // 4. 상세 모달 닫기 및 버튼 상태 초기화
+function closeDetailModal(event) {
+    if (!event || event.target.id === 'detailInfoModal' || event.target.classList.contains('btn-close-modal')) {
+        const modal = document.getElementById('detailInfoModal');
+        modal.classList.remove('active');
+
+        // 다른 모달 사용을 위해 확인 버튼 상태 원복
+        const confirmBtn = document.getElementById('btnModalConfirm');
+        if (confirmBtn) {
+            confirmBtn.innerText = "확인 (내용 숙지완료)";
+            confirmBtn.onclick = confirmModalAndActivate;
+        }
+    }
+}
+
+
+</script>
+</body>
+</html>
